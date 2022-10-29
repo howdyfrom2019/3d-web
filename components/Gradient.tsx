@@ -101,6 +101,10 @@ export default function Gradient() {
   }, [animate, init, stageResize]);
 
   return (
-    <div ref={canvasRef}/>
+    <div className="full-page" ref={canvasRef}>
+      {/*<style jsx>{`*/}
+      {/*  */}
+      {/*`}</style>*/}
+    </div>
   )
 }
