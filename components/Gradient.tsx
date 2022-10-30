@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useRef} from "react";
 import * as Three from "three";
-import {getOnline} from "next/dist/lib/helpers/get-online";
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
 export default function Gradient() {
   const scene = useRef<Three.Scene>(new Three.Scene());
@@ -16,7 +16,6 @@ export default function Gradient() {
     renderer.current.setSize(window.innerWidth, window.innerHeight);
     renderer.current.autoClear = false;
     renderer.current.setClearColor(0x000000, 0.0);
-    console.log(renderer.current?.domElement);
     canvasRef.current?.appendChild(renderer.current?.domElement);
 
     camera.current.position.z = 400;
@@ -54,7 +53,6 @@ export default function Gradient() {
     scene.current.add(ambient);
 
     lights[0] = new Three.DirectionalLight(0xffffff, 1);
-    const lightDirection = new Three.DirectionalLightHelper(lights[0]);
 
     lights[0].position.set(1, 0, 0);
     lights[1] = new Three.DirectionalLight(0x11E8BB, 1);
@@ -63,6 +61,10 @@ export default function Gradient() {
     lights[2].position.set(-0.75, -1, 0.5);
 
     lights.forEach(light => scene.current.add(light));
+
+    const controls = new OrbitControls(camera.current, renderer.current.domElement);
+    controls.enableDamping = true;
+    controls.update();
   }, []);
 
   const animate = useCallback(() => {
