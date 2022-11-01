@@ -2,12 +2,13 @@
   "name": "3d-web",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://howdyfrom2019.github.io/3d-web",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "shx rm -rf node_modules/.cache && next build && next export && touch out/.nojekyll && git add out/ && git commit -m \"Deploy Next.js to gh-pages\" && git subtree push --prefix out origin gh-pages"
+    "deploy": "next build && next export && git add out/ && git commit -m \"fixing asset bug try - 2\" && git subtree push --prefix out origin gh-pages"
   },
   "dependencies": {
     "@types/three": "^0.144.0",
