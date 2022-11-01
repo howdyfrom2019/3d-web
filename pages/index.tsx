@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 
-const ThreeJSSetting = dynamic(() => import("../components/Gradient"), {ssr: false});
+const ThreeJSSetting = dynamic(() => import("../components/ThreeDimension"), {ssr: false});
 
 export default function Home() {
   return (
