@@ -2,9 +2,10 @@ import * as Three from "three";
 import {useCallback, useEffect, useRef} from "react";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import * as THREE from "three";
-import EarthImage from "../assets/earth.jpg";
+import EarthImage from "../assets/Albedo.jpg";
 import SpaceImage from "../assets/universe.jpg";
 import Moon from "../assets/moon.jpg";
+import Cloud from "../assets/Clouds.png";
 
 export default function Earth() {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -26,6 +27,7 @@ export default function Earth() {
     controls.current.enableDamping = true;
     controls.current.minDistance = 200;
     controls.current.maxDistance = 500;
+    controls.current.autoRotate = true;
 
     scene.current.add(earth.current);
 
@@ -40,21 +42,39 @@ export default function Earth() {
     {
       const earthLoader = new Three.TextureLoader().load(EarthImage.src);
       const geometry = new Three.SphereGeometry(80, 32, 32);
-      const material = new Three.MeshBasicMaterial({map: earthLoader});
+      const material = new Three.MeshPhongMaterial({map: earthLoader});
       const planet = new Three.Mesh(geometry, material);
       earth.current.rotation.x = 0.3;
       earth.current.add(planet);
     }
 
     {
+      const cloudLoader = new Three.TextureLoader().load(Cloud.src);
+      const material = new Three.MeshPhongMaterial({
+        map: cloudLoader,
+        transparent: true,
+        opacity: 0.4
+      });
+      const geometry = new Three.SphereGeometry(82, 32, 32);
+      const cloud = new Three.Mesh(geometry, material);
+      earth.current.add(cloud);
+    }
+
+    {
       const moonLoader = new Three.TextureLoader().load(Moon.src);
       const geometry = new Three.SphereGeometry(6, 32, 32);
-      const material = new Three.MeshBasicMaterial({map: moonLoader});
+      const material = new Three.MeshPhongMaterial({map: moonLoader});
       const smallPlanet = new Three.Mesh(geometry, material);
       smallPlanet.position.set(120, 0, 80);
       moon.current.add(smallPlanet);
       earth.current.add(moon.current);
     }
+
+    const light = new Three.HemisphereLight(0xffffff, 0x080820, 1.5);
+    light.position.set(100, 100, 0);
+    scene.current.add(light);
+    const helper = new Three.HemisphereLightHelper(light, 15);
+    scene.current.add(helper);
 
   }, []);
 
