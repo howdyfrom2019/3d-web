@@ -13,7 +13,7 @@ export default function Boxes() {
     renderer.current.setSize(window.innerWidth, window.innerHeight);
     renderer.current.setClearColor(0x000000);
     canvasRef.current?.appendChild(renderer.current.domElement);
-    camera.current.position.set(0, 0, 150);
+    camera.current.position.set(0, 20, 150);
 
     const axes = new Three.AxesHelper(150);
     const gridHelper = new Three.GridHelper(240, 20);
@@ -33,8 +33,8 @@ export default function Boxes() {
     const geometry = new Three.BoxGeometry(20, 5, 20);
     const material = new Three.MeshLambertMaterial({ color: 0xffffff });
     const box = new Three.Mesh(geometry, material);
-    box.position.set(0, i * 10, 0);
-    box.rotation.set(0, i, 0);
+    box.position.set(Math.random() * 200 - 100, i * 10, Math.random() * 160 - 80);
+    box.rotation.set(0, i, Math.random() * 20);
     scene.current.add(box);
   }
 
