@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 
-const ThreeJSSetting = dynamic(() => import("../components/Earth"), {ssr: false});
+const ThreeJSSetting = dynamic(() => import("../components/boxes"), {ssr: false});
 
 export default function Home() {
   return (
