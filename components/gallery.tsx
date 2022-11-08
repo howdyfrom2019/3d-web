@@ -4,12 +4,14 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
 export default function Gallery() {
   const [frameCount, setFrameCount] = useState(2);
+  const pageNumber = useRef<number>(0);
   const distance = useRef<number>(100);
+  const moveBezier = useRef<number>(0);
   const canvasRef = useRef<HTMLDivElement>(null);
   const scene = useRef<Three.Scene>(new Three.Scene());
   const camera = useRef<Three.PerspectiveCamera>(new Three.PerspectiveCamera(80, window.innerWidth /window.innerHeight, 0.1, 10000));
   const renderer = useRef<Three.WebGLRenderer>(new Three.WebGLRenderer({ antialias: true }));
-  const controls = useRef<OrbitControls>(new OrbitControls(camera.current, renderer.current.domElement))
+  // const controls = useRef<OrbitControls>(new OrbitControls(camera.current, renderer.current.domElement))
   const galleryGroup = useRef<Three.Group>(new Three.Group());
 
   const addFrame = useCallback((i: number) => {
@@ -71,15 +73,25 @@ export default function Gallery() {
   }, [addFrame, frameCount]);
 
   const animate = useCallback(() => {
+    moveBezier.current += (-pageNumber.current * distance.current - moveBezier.current) * 0.05;
+    galleryGroup.current.position.x = moveBezier.current;
+    camera.current.lookAt(scene.current.position);
+    camera.current.updateProjectionMatrix();
     renderer.current.render(scene.current, camera.current);
-    controls.current.update();
+    // controls.current.update();
     requestAnimationFrame(animate);
   }, []);
 
   const stageResize = useCallback(() => {
+    camera.current.updateProjectionMatrix();
     renderer.current.setSize(window.innerWidth, window.innerHeight);
     camera.current.aspect = window.innerWidth / window.innerHeight;
   }, []);
+
+  const moveArtworkByClickEvent = useCallback((e: MouseEvent) => {
+    if (e.pageX > window.innerWidth / 2) pageNumber.current += pageNumber.current < frameCount ? 1 : 0;
+    else pageNumber.current -= pageNumber.current > 0 ? 1 : 0;
+  }, [frameCount]);
 
   useEffect(() => {
     init();
@@ -89,5 +101,6 @@ export default function Gallery() {
       window.removeEventListener("resize", stageResize);
     }
   }, [animate, init, stageResize]);
-  return <div ref={canvasRef} />
+
+  return <div ref={canvasRef} onClick={(e) => moveArtworkByClickEvent(e)} />
 }
