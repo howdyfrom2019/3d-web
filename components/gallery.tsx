@@ -1,9 +1,9 @@
 import * as Three from "three";
-import {useCallback, useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
 export default function Gallery() {
-  const [frameCount, setFrameCount] = useState(2);
+  const [frameCount, setFrameCount] = useState(10);
   const pageNumber = useRef<number>(0);
   const distance = useRef<number>(100);
   const moveBezier = useRef<number>(0);
@@ -25,16 +25,16 @@ export default function Gallery() {
 
     //조명
     const spotLight = new Three.SpotLight(0xffffff, 1.6);
-    const spotLightHelper = new Three.SpotLightHelper(spotLight);
+    // const spotLightHelper = new Three.SpotLightHelper(spotLight);
     spotLight.position.set(i * distance.current, 30, 30);
-    spotLight.angle = Math.PI / 4;
+    spotLight.angle = Math.PI / 3.5;
     spotLight.penumbra = 0.1;
     spotLight.decay = 1;
     spotLight.distance = 60;
     spotLight.target = boxMesh;
-    spotLight.castShadow = true;
+    // spotLight.castShadow = true;
     galleryGroup.current.add(spotLight);
-    scene.current.add(spotLightHelper);
+    // scene.current.add(spotLightHelper);
 
   }, []);
   
@@ -48,7 +48,7 @@ export default function Gallery() {
     const axes = new Three.AxesHelper(150);
     const gridHelper = new Three.GridHelper(240, 20);
     scene.current.add(axes, gridHelper);
-    camera.current.position.set(0, 0, 50);
+    camera.current.position.set(50, 10, 80);
 
     const light = new Three.HemisphereLight(0xffffff, 0x080820, 0.5);
     light.position.set(0, 50, 50);
@@ -88,9 +88,14 @@ export default function Gallery() {
     camera.current.aspect = window.innerWidth / window.innerHeight;
   }, []);
 
-  const moveArtworkByClickEvent = useCallback((e: MouseEvent) => {
+  const moveArtworkByClickEvent = useCallback((e: React.MouseEvent) => {
     if (e.pageX > window.innerWidth / 2) pageNumber.current += pageNumber.current < frameCount ? 1 : 0;
     else pageNumber.current -= pageNumber.current > 0 ? 1 : 0;
+  }, [frameCount]);
+
+  const moveArtworkByWheelEvent = useCallback((e: React.WheelEvent) => {
+    if (e.deltaY === -100) pageNumber.current -= pageNumber.current > 0 ? 1 : 0;
+    else pageNumber.current += pageNumber.current < frameCount ? 1 : 0;
   }, [frameCount]);
 
   useEffect(() => {
@@ -102,5 +107,5 @@ export default function Gallery() {
     }
   }, [animate, init, stageResize]);
 
-  return <div ref={canvasRef} onClick={(e) => moveArtworkByClickEvent(e)} />
+  return <div ref={canvasRef} onClick={moveArtworkByClickEvent} onWheel={moveArtworkByWheelEvent} />
 }
