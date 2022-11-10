@@ -7,6 +7,10 @@ export default function Zoom () {
   const artworksGroup = useRef(new Three.Object3D());
   const pageNum = useRef(0);
   const moveBezier = useRef(0);
+  const mouseX = useRef(0);
+  const mouseY = useRef(0);
+  const moveX = useRef(0);
+  const moveY = useRef(0);
   const canvasRef = useRef<HTMLDivElement>(null);
   const scene = useRef<Three.Scene>(new Three.Scene());
   const camera = useRef<Three.PerspectiveCamera>(new Three.PerspectiveCamera(80, window.innerWidth /window.innerHeight, 0.1, 10000));
@@ -64,7 +68,10 @@ export default function Zoom () {
 
   const animate = useCallback(() => {
     moveBezier.current += (-pageNum.current * 30 - moveBezier.current) * 0.07;
-    artworksGroup.current.position.z = moveBezier.current;
+    moveX.current += (mouseX.current - moveX.current - window.innerWidth / 2) * 0.05;
+    moveY.current += (mouseY.current - moveY.current - window.innerHeight / 2) * 0.05;
+
+    artworksGroup.current.position.set(-(moveX.current / 50), moveY.current / 50, moveBezier.current);
 
     camera.current.lookAt(scene.current.position);
     camera.current.updateProjectionMatrix();
@@ -91,5 +98,11 @@ export default function Zoom () {
       window.removeEventListener("resize", stageResize);
     }
   }, [animate, init, stageResize]);
-  return <div ref={canvasRef} onWheel={scrollEvent} />
+  return <div
+    ref={canvasRef}
+    onWheel={scrollEvent}
+    onMouseMove={(e) => {
+      mouseX.current = e.clientX;
+      mouseY.current = e.clientY;
+    }} />
 }
