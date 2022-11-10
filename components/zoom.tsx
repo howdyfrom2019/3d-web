@@ -19,7 +19,7 @@ export default function Zoom () {
     const material = new Three.MeshPhongMaterial({ map: imageMap });
     const boxMesh = new Three.Mesh(geometry, material);
 
-    boxMesh.position.set(Math.random() * 500 - 500 / 2, Math.random() * 200 - 200 / 2, i * 30);
+    boxMesh.position.set(Math.random() * 200 - 200 / 2, Math.random() * 100 - 100 / 2, i * 30);
     artworksGroup.current.add(boxMesh);
   }, []);
 
@@ -39,12 +39,17 @@ export default function Zoom () {
     renderer.current.setClearColor(0x000000);
     canvasRef.current?.appendChild(renderer.current.domElement);
     // camera.current.position.set(-50, 20, -40);
-    camera.current.position.set(0, 0, -150);
+    camera.current.position.set(20, 0, -50);
     renderer.current.shadowMap.enabled = true;
 
-    const axes = new Three.AxesHelper(150);
-    const gridHelper = new Three.GridHelper(240, 20);
-    scene.current.add(axes, gridHelper);
+    const near = 100;
+    const far = 300;
+    const color = "#000000";
+    scene.current.fog = new Three.Fog(color, near, far);
+
+    // const axes = new Three.AxesHelper(150);
+    // const gridHelper = new Three.GridHelper(240, 20);
+    // scene.current.add(axes, gridHelper);
 
     const light = new Three.HemisphereLight(0xffffff, 0x080820, 0.8);
     light.position.set(100, 100, 0);
