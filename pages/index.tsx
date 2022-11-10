@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 
-const ThreeJSSetting = dynamic(() => import("../components/gallery"), {ssr: false});
+const ThreeJSSetting = dynamic(() => import("../components/zoom"), {ssr: false});
 
 export default function Home() {
   return (
