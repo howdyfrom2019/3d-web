@@ -6,11 +6,12 @@ export default function Zoom () {
   const totalArtworks = useRef(100);
   const artworksGroup = useRef(new Three.Object3D());
   const pageNum = useRef(0);
-  const moveBezier = useRef(0);
+  const moveZ = useRef(0);
   const mouseX = useRef(0);
   const mouseY = useRef(0);
   const moveX = useRef(0);
   const moveY = useRef(0);
+  const progressBarRef = useRef<HTMLSpanElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const scene = useRef<Three.Scene>(new Three.Scene());
   const camera = useRef<Three.PerspectiveCamera>(new Three.PerspectiveCamera(80, window.innerWidth /window.innerHeight, 0.1, 10000));
@@ -23,7 +24,7 @@ export default function Zoom () {
     const material = new Three.MeshPhongMaterial({ map: imageMap });
     const boxMesh = new Three.Mesh(geometry, material);
 
-    boxMesh.position.set(Math.random() * 200 - 200 / 2, Math.random() * 100 - 100 / 2, i * 30);
+    boxMesh.position.set(Math.random() * 100 - 100 / 2, Math.random() * 50 - 50 / 2, i * 30);
     artworksGroup.current.add(boxMesh);
   }, []);
 
@@ -34,8 +35,9 @@ export default function Zoom () {
     light.castShadow = true;
 
     light.position.set(x, y, z);
-    const helper = new Three.PointLightHelper(light);
-    scene.current.add(helper, light);
+    // const helper = new Three.PointLightHelper(light);
+    // scene.current.add(helper, light);
+    scene.current.add(light);
   }
 
   const init = useCallback(() => {
@@ -43,7 +45,7 @@ export default function Zoom () {
     renderer.current.setClearColor(0x000000);
     canvasRef.current?.appendChild(renderer.current.domElement);
     // camera.current.position.set(-50, 20, -40);
-    camera.current.position.set(20, 0, -50);
+    camera.current.position.set(0, 0, -50);
     renderer.current.shadowMap.enabled = true;
 
     const near = 100;
@@ -67,11 +69,10 @@ export default function Zoom () {
   }, [addArtwork]);
 
   const animate = useCallback(() => {
-    moveBezier.current += (-pageNum.current * 30 - moveBezier.current) * 0.07;
+    moveZ.current += (-pageNum.current * 30 - moveZ.current) * 0.07;
     moveX.current += (mouseX.current - moveX.current - window.innerWidth / 2) * 0.05;
     moveY.current += (mouseY.current - moveY.current - window.innerHeight / 2) * 0.05;
-
-    artworksGroup.current.position.set(-(moveX.current / 50), moveY.current / 50, moveBezier.current);
+    artworksGroup.current.position.set(-(moveX.current / 50), moveY.current / 50, moveZ.current);
 
     camera.current.lookAt(scene.current.position);
     camera.current.updateProjectionMatrix();
@@ -85,24 +86,69 @@ export default function Zoom () {
     camera.current.aspect = window.innerWidth / window.innerHeight;
   }, []);
   
-  const scrollEvent = useCallback((e: React.WheelEvent) => {
-    if (e.deltaY === -100) pageNum.current -= pageNum.current > 0 ? 1 : 0;
-    else pageNum.current += pageNum.current < totalArtworks.current ? 1 : 0;
+  const scrollEvent = useCallback(() => {
+    // if (e.deltaY < 0) pageNum.current -= pageNum.current > 0 ? 1 : 0;
+    // else pageNum.current += pageNum.current < totalArtworks.current ? 1 : 0;
+    pageNum.current = Math.min(Math.ceil(window.scrollY / 100), totalArtworks.current);
+    // console.log(scrollY.current, window.outerHeight, document.body.offsetHeight);
+    if (progressBarRef.current) {
+      progressBarRef.current.style.width = `${Math.ceil(100 * window.scrollY / (document.body.offsetHeight - window.innerHeight))}%`;
+    }
   }, []);
 
   useEffect(() => {
     init();
     animate();
+    window.addEventListener("scroll", scrollEvent, false);
     window.addEventListener("resize", stageResize, false);
     return () => {
+      window.removeEventListener("scroll", scrollEvent);
       window.removeEventListener("resize", stageResize);
     }
-  }, [animate, init, stageResize]);
-  return <div
-    ref={canvasRef}
-    onWheel={scrollEvent}
-    onMouseMove={(e) => {
-      mouseX.current = e.clientX;
-      mouseY.current = e.clientY;
-    }} />
+  }, [animate, init, scrollEvent, stageResize]);
+  return (
+    <>
+      <style jsx>{`
+        .full-page {
+          height: ${window.innerHeight + totalArtworks.current * 100 + "px"};
+        }
+        .progress {
+          width: 100vw;
+          height: 4px;
+          position: fixed;
+          display: flex;
+          top: 0;
+          left: 0;
+          background: rgba(255, 255, 255, 0.4);
+          z-index: 2;
+        }
+        
+        .bar {
+          height: 100%;
+          border-radius: 1rem;
+          background: #11e8bb;
+          z-index: 3;
+          transition: width 0.14s ease-out;
+        }
+        
+        #canvas-wrapper {
+          position: fixed;
+          top: 0;
+        }
+      `}</style>
+      <div className={"full-page"}>
+        <div className={"progress"}>
+          <span className={"bar"} ref={progressBarRef}/>
+        </div>
+        <div
+          id={"canvas-wrapper"}
+          ref={canvasRef}
+          // onWheel={scrollEvent}
+          onMouseMove={(e) => {
+            mouseX.current = e.clientX;
+            mouseY.current = e.clientY;
+          }} />
+      </div>
+    </>
+  )
 }

@@ -6,7 +6,7 @@ body {
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
     background: linear-gradient(to bottom,  #11e8bb 0%,#8200c9 100%);
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#11e8bb', endColorstr='#8200c9',GradientType=0 );
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 a {
